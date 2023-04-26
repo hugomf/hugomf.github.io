@@ -1,36 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mi Mapa</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <meta charset="utf-8">
+    <title>CMDX Map</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.7.1/leaflet.css" />
+    <style>
+        #mapid { height: 500px; }
+    </style>
 </head>
 <body>
-  <div id="map" style="height: 500px;"></div>
+    <div id="mapid"></div>
+	<script src="http://cdn.leafletjs.com/leaflet/v1.7.1/leaflet.js"></script>
+    <script>
+        var mymap = L.map('mapid').setView([19.4, -99.1], 11);
 
-  <script>
-    var mymap = L.map('map').setView([0, 0], 1);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1
+        }).addTo(mymap);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-      maxZoom: 18,
-    }).addTo(mymap);
+        // Add Mexico City borders to the map
+        var cmdxBounds = L.geoJSON(null, {
+            style: {
+                weight: 2,
+                color: "#008000"
+            }
+        });
+        cmdxBounds.addTo(mymap);
+        fetch("https://raw.githubusercontent.com/john-guerra/cmd/master/mexicoCityCenter.geojson")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                cmdxBounds.addData(data);
+                mymap.fitBounds(cmdxBounds.getBounds());
+            });
 
-    var markerLayer = L.layerGroup().addTo(mymap);
-
-    function onLocationFound(e) {
-      var radius = e.accuracy / 2;
-      L.marker(e.latlng).addTo(markerLayer);
-    }
-
-    function onLocationError(e) {
-      alert(e.message);
-    }
-
-    mymap.on('locationfound', onLocationFound);
-    mymap.on('locationerror', onLocationError);
-
-    mymap.locate({setView: true, maxZoom: 16});
-  </script>
+        // Add the hardcoded points to the map as markers
+        L.marker([19.439861589598387, -99.19971874491283]).addTo(mymap).bindPopup("Miyana");
+        L.marker([19.42642642814729, -99.1645869062463]).addTo(mymap).bindPopup("Hooters La Rosa");
+        L.marker([19.414542080230152, -99.16636683040447]).addTo(mymap).bindPopup("Sixties Bar");
+    </script>
 </body>
 </html>
