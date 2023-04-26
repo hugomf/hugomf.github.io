@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mi Mapa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map" style="height: 500px;"></div>
+
+  <script>
+    var mymap = L.map('map').setView([0, 0], 1);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 18,
+    }).addTo(mymap);
+
+    var markerLayer = L.layerGroup().addTo(mymap);
+
+    function onLocationFound(e) {
+      var radius = e.accuracy / 2;
+      L.marker(e.latlng).addTo(markerLayer);
+    }
+
+    function onLocationError(e) {
+      alert(e.message);
+    }
+
+    mymap.on('locationfound', onLocationFound);
+    mymap.on('locationerror', onLocationError);
+
+    mymap.locate({setView: true, maxZoom: 16});
+  </script>
+</body>
+</html>
